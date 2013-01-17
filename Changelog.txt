@@ -1,0 +1,67 @@
+  * Added compatibility for oxid 4.7 and 5.0.
+  * Obscure kkpruef for even more PCI compliance (credit card number already was obscured).
+
+==1.2.8==
+  * Implemented payment-methods BillSAFE and CommerzFinanz
+  * Corrected DB-query
+  * Reduce stock before or after redirect when order is saved before authorization
+  * Call parent-block in payment-block in emails
+  * Fixed wrong status-change
+
+==1.2.7==
+  * Order can be created before authorization to have an order-nr to send to payone
+  * Fixed error in payment form for Internet Explorer 8 and lower
+
+==1.2.6==
+  * Some changes for module certification
+  * Made proper build file for module
+
+==1.2.5==
+  * Module is now compatible from oxid 4.2.0 up to 4.6.X
+  * Changed creditcard-data handling
+
+==1.2.4==
+  * Added compatibility for oxid 4.6.0
+  * Enabled debitnote payment method for austria and switzerland
+  * Enabled Sofort�berweisung for austria
+  * Debitnote bankconnection can now be saved for direct usage on the next order
+
+==1.2.3==
+  * Adjusted the rules for capture and debit
+
+==1.2.2==
+  * Adjusted the account settlement for multi partial capture
+  * Adjusted unit tests for new version
+
+==1.2.1==
+  * The account settlement can now be controlled while capturing for multi partial capturing.
+  * Added english translation of admin interface.
+  * Adjusted some nessassary comments for achieving goal of certification.
+
+==1.2.0==
+  * Improved usage of OXID's framework technologies. 
+  * Uniformly usage of OXID's code style.
+  * Restructured Module Files.
+  * Refactored setAuthorizationParameters() method.
+  * New method setPaymentParameters().
+  * New method addParametersOnlineTransaction().
+  * Completed code comments of source and tests
+
+==1.1.7==
+  * Modul-Kompatibilit�t mit OXID eShop CE/PE/EE 4.5 hergestellt
+
+==1.1.5==
+  * Erweiterungskonzept f�r Individualisierungen
+
+==1.1.4==
+  * Optimierung des Modul - Setup-Prozesses und frei definierbarer Standard-Bonit�tsindex
+
+==1.1.3==
+  * Bugfixes f�r Modul-Kompatibilit�t mit OXID eShop CE/PE/EE 4.4.7
+
+==1.1.2==
+  * PAYONE Payment-Modul wurde optimiert und hat "stable" Status erreicht
+
+==1.0.0==
+  * Initiale Bereitstellung des Payment-Moduls von PAYONE f�r OXID eShop
+
