@@ -8,7 +8,7 @@ Fatchip GmbH
 fc
 
 ==Version==
-1.3.0b_1999
+1.3.0_2027
 
 ==Link==
 http://www.payone.de

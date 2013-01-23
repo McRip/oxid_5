@@ -13,7 +13,7 @@ class fcpoRequest extends oxSuperCfg {
      * @return string
      */
     public static function getVersion() {
-        return '1.3.0b';
+        return '1.3.0';
     }
 
     /**
@@ -94,10 +94,14 @@ class fcpoRequest extends oxSuperCfg {
      * 
      * @param string $sKey parameter key
      * @param string $sValue parameter value
+     * @param bool $blAddAsNullIfEmpty add parameter with value NULL if empty. Default is false
      *
      * @return null
      */
-    public function addParameter($sKey, $sValue) {
+    public function addParameter($sKey, $sValue, $blAddAsNullIfEmpty = false) {
+        if($blAddAsNullIfEmpty === true && empty($sValue)) {
+            $sValue = 'NULL';
+        }
         $this->_aParameters[$sKey] = $sValue;
     }
 
@@ -933,33 +937,56 @@ class fcpoRequest extends oxSuperCfg {
         $sOrderId = oxDb::getDb()->GetOne($sQuery);
 
         if(!$sOrderId) {
-            $oPORequest = oxNew('fcporequest');
-            $oResponse = $oPORequest->sendRequestUpdateuser($oOrder, $oUser);
+            $sQuery = " SELECT 
+                            fcpo_userid 
+                        FROM 
+                            fcpotransactionstatus 
+                        WHERE 
+                            fcpo_customerid = '{$oUser->oxuser__oxcustnr->value}' 
+                        ORDER BY 
+                            fcpo_timestamp DESC 
+                        LIMIT 1";
+            $sPayOneUserId = oxDb::getDb()->GetOne($sQuery);
+            if($sPayOneUserId) {
+                $oPORequest = oxNew('fcporequest');
+                $oResponse = $oPORequest->sendRequestUpdateuser($oOrder, $oUser, $sPayOneUserId);
+            }
         }
     }
 
-    protected function _addUserDataParameters($oOrder, $oUser) {
+    /**
+     * Add the the user information parameters
+     *
+     * @param object $oOrder order object
+     * @param object $oUser user object
+     * @param bool $blIsUpdateUser is update user request? Default is false
+     * 
+     * @return null
+     */
+    protected function _addUserDataParameters($oOrder, $oUser, $blIsUpdateUser = false) {
         $oCountry = oxNew('oxcountry');
         $oCountry->load($oOrder->oxorder__oxbillcountryid->value);
         
-        $this->addParameter('customerid', $oUser->oxuser__oxcustnr->value);
-        $this->addParameter('salutation', ($oOrder->oxorder__oxbillsal->value == 'MR' ? 'Herr' : 'Frau'));
-        $this->addParameter('firstname', $oOrder->oxorder__oxbillfname->value);
-        $this->addParameter('lastname', $oOrder->oxorder__oxbilllname->value);
-        if($oOrder->oxorder__oxbillcompany->value != '') $this->addParameter('company', $oOrder->oxorder__oxbillcompany->value);
-        $this->addParameter('street', $oOrder->oxorder__oxbillstreet->value.' '.$oOrder->oxorder__oxbillstreetnr->value);
-        if($oOrder->oxorder__oxbilladdinfo->value != '') $this->addParameter('addressaddition', $oOrder->oxorder__oxbilladdinfo->value);
-        $this->addParameter('zip', $oOrder->oxorder__oxbillzip->value);
-        $this->addParameter('city', $oOrder->oxorder__oxbillcity->value);
-        $this->addParameter('country', $oCountry->oxcountry__oxisoalpha2->value);
+        if($blIsUpdateUser === false) {
+            $this->addParameter('customerid', $oUser->oxuser__oxcustnr->value);
+        }
+        $this->addParameter('salutation', ($oOrder->oxorder__oxbillsal->value == 'MR' ? 'Herr' : 'Frau'), $blIsUpdateUser);
+        $this->addParameter('firstname', $oOrder->oxorder__oxbillfname->value, $blIsUpdateUser);
+        $this->addParameter('lastname', $oOrder->oxorder__oxbilllname->value, $blIsUpdateUser);
+        if($blIsUpdateUser || $oOrder->oxorder__oxbillcompany->value != '') $this->addParameter('company', $oOrder->oxorder__oxbillcompany->value, $blIsUpdateUser);
+        $this->addParameter('street', $oOrder->oxorder__oxbillstreet->value.' '.$oOrder->oxorder__oxbillstreetnr->value, $blIsUpdateUser);
+        if($blIsUpdateUser || $oOrder->oxorder__oxbilladdinfo->value != '') $this->addParameter('addressaddition', $oOrder->oxorder__oxbilladdinfo->value, $blIsUpdateUser);
+        $this->addParameter('zip', $oOrder->oxorder__oxbillzip->value, $blIsUpdateUser);
+        $this->addParameter('city', $oOrder->oxorder__oxbillcity->value, $blIsUpdateUser);
+        $this->addParameter('country', $oCountry->oxcountry__oxisoalpha2->value, $blIsUpdateUser);
         if($oCountry->oxcountry__oxisoalpha2->value == 'US' || $oCountry->oxcountry__oxisoalpha2->value == 'CA') {
             $this->addParameter('state', $oOrder->oxorder__oxbillstateid->value);
         }
-        $this->addParameter('email', $oOrder->oxorder__oxbillemail->value);
-        if($oOrder->oxorder__oxbillfon->value != '') $this->addParameter('telephonenumber', $oOrder->oxorder__oxbillfon->value);
-        if($oUser->oxuser__oxbirthday != '0000-00-00' && $oUser->oxuser__oxbirthday != '') $this->addParameter('birthday', str_ireplace('-', '', $oOrder->oxuser__oxbirthday->value));
-        $this->addParameter('language', oxLang::getInstance()->getLanguageAbbr());
-        if($oOrder->oxorder__oxbillustid->value != '') $this->addParameter('vatid', $oOrder->oxorder__oxbillustid->value);
+        $this->addParameter('email', $oOrder->oxorder__oxbillemail->value, $blIsUpdateUser);
+        if($blIsUpdateUser || $oOrder->oxorder__oxbillfon->value != '') $this->addParameter('telephonenumber', $oOrder->oxorder__oxbillfon->value, $blIsUpdateUser);
+        if($blIsUpdateUser || ($oUser->oxuser__oxbirthday != '0000-00-00' && $oUser->oxuser__oxbirthday != '')) $this->addParameter('birthday', str_ireplace('-', '', $oOrder->oxuser__oxbirthday->value), $blIsUpdateUser);
+        $this->addParameter('language', oxLang::getInstance()->getLanguageAbbr(), $blIsUpdateUser);
+        if($blIsUpdateUser || $oOrder->oxorder__oxbillustid->value != '') $this->addParameter('vatid', $oOrder->oxorder__oxbillustid->value, $blIsUpdateUser);
     }
     
     /**
@@ -967,12 +994,14 @@ class fcpoRequest extends oxSuperCfg {
      *
      * @param object $oOrder order object
      * @param object $oUser user object
+     * @param string $sPayOneUserId payone user-id for this user
      * 
      * @return array
      */
-    public function sendRequestUpdateuser($oOrder, $oUser) {
+    public function sendRequestUpdateuser($oOrder, $oUser, $sPayOneUserId) {
         $this->addParameter('request', 'updateuser'); //Request method
         $this->addParameter('mode', $this->getOperationMode($oOrder));//PayOne Portal Operation Mode (live or test)
+        $this->addParameter('customerid', $sPayOneUserId);
         
         $this->_addUserDataParameters($oOrder, $oUser, true);
         return $this->send();

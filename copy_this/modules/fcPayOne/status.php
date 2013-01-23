@@ -5,43 +5,46 @@ ini_set ('memory_limit', '1024M');
 ini_set ('log_errors', 1);
 ini_set ('error_log', 'error.log');
 
+if(file_exists(dirname(__FILE__)."/../../bootstrap.php")) {
+    require_once dirname(__FILE__) . "/../../bootstrap.php";
+} else {
+	if (!function_exists('getShopBasePath')) {
+		/**
+		 * Returns shop base path.
+		 *
+		 * @return string
+		 */
+		function getShopBasePath()
+		{
+			return dirname(__FILE__).'/../../';
+		}
+	}
 
-if (!function_exists('getShopBasePath')) {
-    /**
-     * Returns shop base path.
-     *
-     * @return string
-     */
-    function getShopBasePath()
-    {
-        return dirname(__FILE__).'/../../';
-    }
+	set_include_path(get_include_path() . PATH_SEPARATOR . getShopBasePath());
+
+	/**
+	 * Returns true.
+	 *
+	 * @return bool
+	 */
+	if ( !function_exists( 'isAdmin' )) {
+		function isAdmin()
+		{
+			return true;
+		}
+	}
+
+	error_reporting( E_ALL ^ E_NOTICE );
+
+	// custom functions file
+	require getShopBasePath() . 'modules/functions.php';
+
+	// Generic utility method file
+	require_once getShopBasePath() . 'core/oxfunctions.php';
+
+	//strips magics quote if any
+	oxUtils::getInstance()->stripGpcMagicQuotes();
 }
-
-set_include_path(get_include_path() . PATH_SEPARATOR . getShopBasePath());
-
-/**
- * Returns true.
- *
- * @return bool
- */
-if ( !function_exists( 'isAdmin' )) {
-    function isAdmin()
-    {
-        return true;
-    }
-}
-
-error_reporting( E_ALL ^ E_NOTICE );
-
-// custom functions file
-require getShopBasePath() . 'modules/functions.php';
-
-// Generic utility method file
-require_once getShopBasePath() . 'core/oxfunctions.php';
-
-//strips magics quote if any
-oxUtils::getInstance()->stripGpcMagicQuotes();
 
 function get($key) {
     if(array_key_exists($key, $_POST)) {
