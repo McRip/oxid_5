@@ -90,7 +90,7 @@ class fcPayOneUser extends fcPayOneUser_parent {
      *
      * @return bool
      */
-    public function checkAddressAndScore() {
+    public function checkAddressAndScore($blCheckAddress = true) {
         $oConfig = $this->getConfig();
         $aResponse = array();
         $blCheckedBoni = false;
@@ -104,7 +104,7 @@ class fcPayOneUser extends fcPayOneUser_parent {
             }
         }
         
-        if($oConfig->getConfigParam('sFCPOAddresscheck') != 'NO') {
+        if($blCheckAddress === true && $oConfig->getConfigParam('sFCPOAddresscheck') != 'NO') {
             //Addresscheck
             if($oConfig->getConfigParam('sFCPOBonicheck') == '-1' || $blCheckedBoni === false) {
                 //Check Rechnungsadresse

@@ -1,3 +1,11 @@
+==1.3.1==
+  * Added possibility to define the moment the consumerscore is happening for trusted shops certification
+  * Make module class instanciation of fcPayOneTransactionStatusHandler() use oxNew() to be overloadable by OXID framework.
+  * Added template override for block "select_payment" for better support with other payment modules
+  * Fixed some minor issues in payment templates
+  * Creating the TransactionStatus receiver object with oxNew instead of new to enable modules for the status script
+  * Fixed a bug in oxid 4.5.X and below when using option to save the order before authorization
+
 ==1.3.0==
   * Added compatibility for oxid 4.7 and 5.0.
   * Obscure kkpruef for even more PCI compliance (credit card number already was obscured).

@@ -9,6 +9,27 @@
  */
 class fcPayOnePayment extends fcPayOnePayment_parent {
 
+    /*
+     * Array of all payment method IDs belonging to PAYONE
+     *
+     * @var array
+     */
+    protected static $_aPaymentTypes = array(
+        'fcpoinvoice',
+        'fcpopayadvance',
+        'fcpodebitnote',
+        'fcpocashondel',
+        'fcpocreditcard',
+        'fcpoonlineueberweisung',
+        'fcpopaypal',
+        'fcpocommerzfinanz',
+        'fcpobillsafe',
+    );
+    
+    public static function fcGetPayonePaymentTypes() {
+        return self::$_aPaymentTypes;
+    }
+    
     /**
      * Determines the operation mode ( live or test ) used in this order based on the payment (sub) method
      *
@@ -71,6 +92,27 @@ class fcPayOnePayment extends fcPayOnePayment_parent {
             }
         }
         return $aDynValues;
+    }
+    
+    /**
+     * Check if a creditworthiness check has to be done
+     * ( Has to be done if from boni is greater zero )
+     * 
+     * @return bool
+     */
+    public function fcBoniCheckNeeded() {
+        if($this->oxpayments__oxfromboni->value > 0) {
+            return true;
+        }
+        return false;
+    }
+    
+    public function fcIsPayOnePaymentType() {
+        $aTypes = self::fcGetPayonePaymentTypes();
+        if(array_search($this->getId(), $aTypes) !== false) {
+            return true;
+        }
+        return false;
     }
 
 }

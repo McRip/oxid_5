@@ -111,5 +111,5 @@ print_r($_POST);
 error_log(ob_get_contents(), 3, dirname(__FILE__).'/transactions.log');
 ob_end_clean();
 
-$oLogger = new fcPayOneTransactionStatusHandler();
+$oLogger = oxNew('fcPayOneTransactionStatusHandler');
 $oLogger->handle();

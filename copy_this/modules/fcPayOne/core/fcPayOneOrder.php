@@ -10,23 +10,6 @@
 class fcPayOneOrder extends fcPayOneOrder_parent {
 
     /*
-     * Array of all payment method IDs belonging to PAYONE
-     *
-     * @var array
-     */
-    protected $_aPaymentTypes = array(
-        'fcpoinvoice',
-        'fcpopayadvance',
-        'fcpodebitnote',
-        'fcpocashondel',
-        'fcpocreditcard',
-        'fcpoonlineueberweisung',
-        'fcpopaypal',
-        'fcpocommerzfinanz',
-        'fcpobillsafe',
-    );
-
-    /*
      * Array with all reponse paramaters from the API order request
      *
      * @var array
@@ -49,7 +32,8 @@ class fcPayOneOrder extends fcPayOneOrder_parent {
         if(!$sPaymenttype) {
             $sPaymenttype = $this->oxorder__oxpaymenttype->value;
         }
-        if(array_search($sPaymenttype, $this->_aPaymentTypes) === false) {
+        $aTypes = fcPayOnePayment::fcGetPayonePaymentTypes();
+        if(array_search($sPaymenttype, $aTypes) === false) {
             return false;
         }
         return true;
@@ -572,7 +556,11 @@ class fcPayOneOrder extends fcPayOneOrder_parent {
 
             if($blCheckProduct === true) {
                 // check if its still available
-                $dArtStockAmount = $oBasket->getArtStockInBasket( $oProd->getId(), $key );
+                if($this->_fcGetCurrentVersion() < 4300) {
+                    $dArtStockAmount = $this->fcGetArtStockInBasket( $oBasket, $oProd->getId(), $key );
+                } else {
+                    $dArtStockAmount = $oBasket->getArtStockInBasket( $oProd->getId(), $key );
+                }
                 $iOnStock = $oProd->checkForStock( $oContent->getAmount(), $dArtStockAmount );
                 if ( $iOnStock !== true ) {
                     $oEx = oxNew( 'oxOutOfStockException' );
@@ -588,6 +576,30 @@ class fcPayOneOrder extends fcPayOneOrder_parent {
                 }
             }
         }
+    }
+    
+    /**
+     * Returns stock of article in basket, including bundle article
+     *
+     * @param object $oBasket       basket object
+     * @param string $sArtId        article id
+     * @param string $sExpiredArtId item id of updated article
+     *
+     * @return double
+     */
+    public function fcGetArtStockInBasket( $oBasket, $sArtId, $sExpiredArtId = null ) {
+        $dArtStock = 0;
+        
+        $aContents = $oBasket->getContents();
+        foreach ( $aContents as $sItemKey => $oOrderArticle ) {
+            if ( $oOrderArticle && ( $sExpiredArtId == null || $sExpiredArtId != $sItemKey ) ) {
+                if ( $oOrderArticle->getArticle( true )->getId() == $sArtId ) {
+                    $dArtStock += $oOrderArticle->getAmount();
+                }
+            }
+        }
+
+        return $dArtStock;
     }
 
 }

@@ -14,6 +14,10 @@ class fcpayone_boni_main extends oxAdminDetails {
      */
     protected $_sThisTemplate = 'fcpayone_boni_main.tpl';
 
+    protected $_aMultiLangFields = array(
+        'sFCPOApprovalText',
+        'sFCPODenialText',
+    );
     
     /**
      * Loads payment protection configuration and passes them to Smarty engine, returns
@@ -24,6 +28,13 @@ class fcpayone_boni_main extends oxAdminDetails {
     public function render() {
         $sReturn = parent::render();
 
+        $iLang = oxConfig::getParameter("subjlang");
+        if(empty($iLang)) {
+            $iLang = '0';
+        }
+        
+        $this->_aViewData["subjlang"] =  $iLang;
+        
         $oConfig  = $this->getConfig();
         $sOxid = $oConfig->getShopId();
 
@@ -43,6 +54,11 @@ class fcpayone_boni_main extends oxAdminDetails {
                 if ($sVarType == "bool")
                     $aConfBools[$sVarName] = ($sVarVal == "true" || $sVarVal == "1");
                 if ($sVarType == "str") {
+                    foreach ($this->_aMultiLangFields as $sMultiLangVar) {
+                        if($sVarName == $sMultiLangVar.'_'.$iLang) {
+                            $sVarName = $sMultiLangVar;
+                        }
+                    }
                     $aConfStrs[$sVarName] = $sVarVal;
                     if ( $aConfStrs[$sVarName] ) {
                         $aConfStrs[$sVarName] = $oStr->htmlentities( $aConfStrs[$sVarName] );
@@ -66,9 +82,14 @@ class fcpayone_boni_main extends oxAdminDetails {
      *
      * @return mixed
      */
-    public function save() {
+    public function save() {        
         $oConfig = $this->getConfig();
 
+        $iLang = oxConfig::getParameter("subjlang");
+        if(empty($iLang)) {
+            $iLang = '0';
+        }
+        
         $aConfBools = oxConfig::getParameter( "confbools" );
         $aConfStrs  = oxConfig::getParameter( "confstrs" );
 
@@ -80,6 +101,9 @@ class fcpayone_boni_main extends oxAdminDetails {
 
         if ( is_array( $aConfStrs ) ) {
             foreach ( $aConfStrs as $sVarName => $sVarVal ) {
+                if(array_search($sVarName, $this->_aMultiLangFields) !== false) {
+                    $sVarName = $sVarName.'_'.$iLang;
+                }
                 $oConfig->saveShopConfVar( "str", $sVarName, $sVarVal );
             }
         }

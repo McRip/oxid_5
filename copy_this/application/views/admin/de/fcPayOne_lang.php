@@ -193,6 +193,12 @@ $aLang = array(
 'FCPO_PRODUCT_PRICE'                        => "Einzelpreis",
 'FCPO_PRODUCT_TITLE'                        => "Produkt",
 'FCPO_COMPLETE_ORDER'                       => "Bestellung abschließen",
+'FCPO_CONSUMERSCORE_MOMENT'                 => "Moment der Bonitätsprüfung",
+'FCPO_CONSUMERSCORE_BEFORE'                 => "Vor Zahlartauswahl",
+'FCPO_CONSUMERSCORE_AFTER'                  => "Nach Zahlartauswahl",
+'FCPO_HELP_CONSUMERSCORE_MOMENT'            => "Hilfe Bonitätsprüfung",
+'FCPO_APPROVALTEXT'                         => "Hinweistext Zustimmung Bonit&auml;tspr&uuml;fung",
+'FCPO_DENIALTEXT'                           => "Hinweistext Zahlart abgelehnt",
 );
 
 /*

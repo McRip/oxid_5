@@ -190,6 +190,12 @@ $aLang = array(
 'FCPO_PRODUCT_PRICE'                        => "Unit price",
 'FCPO_PRODUCT_TITLE'                        => "Product",
 'FCPO_COMPLETE_ORDER'                       => "Complete order",
+'FCPO_CONSUMERSCORE_MOMENT'                 => "Moment of consumerscore",
+'FCPO_CONSUMERSCORE_BEFORE'                 => "Before paymenttype selection",
+'FCPO_CONSUMERSCORE_AFTER'                  => "After paymenttype selection",
+'FCPO_HELP_CONSUMERSCORE_MOMENT'            => "Help consumerscore",
+'FCPO_APPROVALTEXT'                         => "Infotext consumerscore approval",
+'FCPO_DENIALTEXT'                           => "Infotext denial message",
 );
 
 /*

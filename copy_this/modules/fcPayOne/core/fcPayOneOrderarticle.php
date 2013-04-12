@@ -9,7 +9,20 @@
  */
 class fcPayOneOrderarticle extends fcPayOneOrderarticle_parent {
 
-
+    /**
+     * Get current version number as 4 digit integer e.g. Oxid 4.5.9 is 4590
+     * 
+     * @return integer
+     */
+    protected function _fcGetCurrentVersion() {
+        $sVersion = oxConfig::getInstance()->getActiveShop()->oxshops__oxversion->value;
+        $iVersion = (int)str_replace('.', '', $sVersion);
+        while ($iVersion < 1000) {
+            $iVersion = $iVersion*10;
+        }
+        return $iVersion;
+    }
+    
     /**
      * Overrides standard oxid save method
      * 
@@ -51,8 +64,10 @@ class fcPayOneOrderarticle extends fcPayOneOrderarticle_parent {
                 }
             }
 
-            // seting downloadable products article files
-            $this->_setOrderFiles();
+            if($this->_fcGetCurrentVersion() >= 4600) {
+                // seting downloadable products article files
+                $this->_setOrderFiles();
+            }
 
             // marking object as "non new" disable further stock changes
             $this->setIsNewOrderItem( false );

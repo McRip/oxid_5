@@ -1,5 +1,17 @@
 [{include file="headitem.tpl" title="GENERAL_ADMIN_TITLE"|oxmultilangassign}]
 
+<script type="text/javascript">
+<!--
+function loadLang(obj) {
+    var langvar = document.getElementById("agblang");
+    if (langvar != null ) {
+        langvar.value = obj.value;
+    }
+    document.myedit.submit();
+}
+//-->
+</script>
+
 [{ if $readonly}]
     [{assign var="readonly" value="readonly disabled"}]
 [{else}]
@@ -55,6 +67,18 @@
             <td class="edittext"><input type="radio" name="confstrs[sFCPOBonicheck]" value="IB" [{if $confstrs.sFCPOBonicheck == 'IB'}]checked[{/if}]> [{ oxmultilang ident="FCPO_ALL_SCORE_BONICHECK" }]</td>
             <td class="edittext">[{ oxinputhelp ident="FCPO_HELP_ALL_SCORE_BONICHECK" }]<br></td>
         </tr>
+        <tr><td colspan="3">&nbsp;</td></tr>        
+        <tr valign="top">
+            <td class="edittext" >
+                [{ oxmultilang ident="FCPO_CONSUMERSCORE_MOMENT"}]
+            </td>
+            <td class="edittext">
+                <input type="radio" name="confstrs[sFCPOBonicheckMoment]" value="before" [{if !isset( $confstrs.sFCPOBonicheckMoment) || $confstrs.sFCPOBonicheckMoment == 'before'}]checked[{/if}]> [{ oxmultilang ident="FCPO_CONSUMERSCORE_BEFORE" }]<br>
+                <input type="radio" name="confstrs[sFCPOBonicheckMoment]" value="after" [{if $confstrs.sFCPOBonicheckMoment == 'after'}]checked[{/if}]> [{ oxmultilang ident="FCPO_CONSUMERSCORE_AFTER" }]
+            </td>
+            <td class="edittext">[{ oxinputhelp ident="FCPO_HELP_CONSUMERSCORE_MOMENT" }]</td>
+        </tr>        
+        <tr><td colspan="3">&nbsp;</td></tr>
         <tr>
             <td class="edittext">[{ oxmultilang ident="FCPO_DURABILITY_BONICHECK"}]</td>
             <td class="edittext"><input type=text name="confstrs[sFCPODurabilityBonicheck]" value="[{$confstrs.sFCPODurabilityBonicheck}]"></td>
@@ -135,16 +159,48 @@
             </td>
             <td class="edittext">[{ oxinputhelp ident="FCPO_HELP_SAVEBANKDATA" }]</td>
         </tr>
+        <tr><td colspan="3">&nbsp;</td></tr>
+        
+        
+        <tr>
+            <td colspan="3">
+                <FIELDSET id=fldLayout>
+                    <LEGEND id=lgdLayout>
+                        [{if $languages}]
+                            <select name="subjlang" class="editinput" onchange="Javascript:loadLang(this)" [{ $readonly}]>
+                                [{foreach key=key item=item from=$languages}]
+                                    <option value="[{$key}]"[{if $subjlang == $key}] SELECTED[{/if}]>[{$item->name}]</option>
+                                [{/foreach}]
+                            </select>
+                        [{/if}]
+                    </LEGEND>
 
+                    <table cellspacing="0" cellpadding="1" border="0">
+                        <tr>
+                            <td class="edittext" >
+                                [{ oxmultilang ident="FCPO_APPROVALTEXT"}]<br>
+                                <textarea name="confstrs[sFCPOApprovalText]" rows="5" cols="120">[{$confstrs.sFCPOApprovalText}]</textarea>
+                            </td>
+                        </tr>
+                        <tr><td>&nbsp;</td></tr>
+                        <tr>
+                            <td class="edittext" >
+                                [{ oxmultilang ident="FCPO_DENIALTEXT"}]<br>
+                                <textarea name="confstrs[sFCPODenialText]" rows="5" cols="120">[{$confstrs.sFCPODenialText}]</textarea>
+                            </td>
+                        </tr>
+                    </table>
+                </FIELDSET>
+            </td>
+        </tr>
         <tr><td colspan="3">&nbsp;</td></tr>
         <tr>
-            <td class="edittext"></td>
-            <td class="edittext"><br>
+            <td class="edittext" colspan="3">
                 <input type="submit" class="edittext" name="save" value="[{ oxmultilang ident="GENERAL_SAVE" }]" onClick="Javascript:document.myedit.fnc.value='save'" [{ $readonly}]>
             </td>
             <td></td>
         </tr>
-
+        <tr><td colspan="3">&nbsp;</td></tr>
     </table>
 </form>
 

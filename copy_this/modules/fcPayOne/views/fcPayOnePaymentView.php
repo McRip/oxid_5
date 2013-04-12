@@ -441,6 +441,23 @@ class fcPayOnePaymentView extends fcPayOnePaymentView_parent {
     public function getTplLang() {
         return oxLang::getInstance()->getLanguageAbbr();
     }
+    
+    /*
+     * Return language id
+     * 
+     * @return int
+     */
+    public function fcGetLangId() {
+        $oLang = oxLang::getInstance();
+        $iLang = ( $iLang === null && $blAdmin ) ? $oLang->getTplLanguage() : $iLang;
+        if ( !isset( $iLang ) ) {
+            $iLang = $oLang->getBaseLanguage();
+            if ( !isset( $iLang ) ) {
+                $iLang = 0;
+            }
+        }
+        return $iLang;
+    }
 
     /**
      * Get configured operation mode ( live or test ) for creditcard
@@ -536,8 +553,10 @@ class fcPayOnePaymentView extends fcPayOnePaymentView_parent {
         if ( $this->_oPaymentList === null ) {
             $oUser = $this->getUser();
             $blContinue = false;
-            if($oUser) {
+            if($oUser && oxConfig::getInstance()->getConfigParam('sFCPOBonicheckMoment') != 'after') {
                 $blContinue = $oUser->checkAddressAndScore();
+            } else {
+                $blContinue = true;
             }
             if($blContinue === true) {
                 return parent::getPaymentList();
@@ -546,6 +565,87 @@ class fcPayOnePaymentView extends fcPayOnePaymentView_parent {
             }
         }
         return $this->_oPaymentList;
+    }
+    
+    /**
+     * Extends oxid standard method validatePayment
+     * Extends it with the creditworthiness check for the user
+     * 
+     * Validates oxidcreditcard and oxiddebitnote user payment data.
+     * Returns null if problems on validating occured. If everything
+     * is OK - returns "order" and redirects to payment confirmation
+     * page.
+     *
+     * Session variables:
+     * <b>paymentid</b>, <b>dynvalue</b>, <b>payerror</b>
+     *
+     * @return  mixed
+     */
+    public function validatePayment() {
+        $sReturn = parent::validatePayment();
+        if($sReturn == 'order' && oxConfig::getInstance()->getConfigParam('sFCPOBonicheckMoment') == 'after') { // success
+            $oSession = $this->getSession();
+            $oUser = $this->getUser();
+            $blContinue = false;
+            if($oUser) {
+                if (! ($sPaymentId = oxConfig::getParameter( 'paymentid' ))) {
+                    $sPaymentId = oxSession::getVar('paymentid');
+                }
+                
+                $oPayment = oxNew( 'oxpayment' );
+                $oPayment->load( $sPaymentId );
+                
+                $blApproval = true;
+                $aApproval = oxConfig::getParameter('fcpo_bonicheckapproved');
+                if(array_key_exists($sPaymentId, $aApproval) && $aApproval[$sPaymentId] == 'false') {
+                    $blApproval = false;
+                }
+                
+                if($oPayment->fcBoniCheckNeeded() && $blApproval === true) {
+                    $blContinue = $oUser->checkAddressAndScore(false);
+                    if($oUser->oxuser__oxboni->value < $oPayment->oxpayments__oxfromboni->value) {
+                        $blContinue = false;
+                    }
+                } else {
+                    $blContinue = true;
+                }
+            }
+            if($blContinue === true) {
+                return $sReturn;
+            } else {
+                $iLangId = $this->fcGetLangId();
+                
+                #$oSession->setVariable( 'payerror', $oPayment->getPaymentErrorNumber() );
+                oxSession::setVar( 'payerror', -20 );
+                oxSession::setVar( 'payerrortext', oxConfig::getInstance()->getConfigParam('sFCPODenialText_'.$iLangId));
+
+                //#1308C - delete paymentid from session, and save selected it just for view
+                oxSession::deleteVar( 'paymentid' );
+                if (! ($sPaymentId = oxConfig::getParameter( 'paymentid' ))) {
+                    $sPaymentId = oxSession::getVar('paymentid');
+                }
+                oxSession::setVar( '_selected_paymentid', $sPaymentId );
+                oxSession::deleteVar( 'stsprotection' );
+                if($this->_fcGetCurrentVersion() >= 4400) {
+                    $oBasket = $oSession->getBasket();
+                    $oBasket->setTsProductId(null);
+                }
+                return;
+            }
+        }
+        return $sReturn;
+    }
+    
+    public function fcGetApprovalText() {
+        $iLangId = $this->fcGetLangId();
+        return oxConfig::getInstance()->getConfigParam('sFCPOApprovalText_'.$iLangId);
+    }
+    
+    public function fcShowApprovalMessage() {
+        if(oxConfig::getInstance()->getConfigParam('sFCPOBonicheckMoment') == 'after') {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -660,6 +760,69 @@ class fcPayOnePaymentView extends fcPayOnePaymentView_parent {
             return $oCountry->oxcountry__oxisoalpha2->value;
         }
         return '';
+    }
+    
+    /**
+     * Extends oxid standard method _setValues
+     * Extends it with the approval checkbox in the longdesc property
+     * 
+     * Calculate payment cost for each payment. Sould be removed later
+     *
+     * @param array    &$aPaymentList payments array
+     * @param oxBasket $oBasket       basket object
+     *
+     * @return null
+     */
+    protected function _setValues( & $aPaymentList, $oBasket = null ) {
+        parent::_setValues($aPaymentList, $oBasket);
+        if ( is_array($aPaymentList) ) {
+            foreach ( $aPaymentList as $oPayment ) {
+                if($oPayment->fcIsPayOnePaymentType() && $this->fcShowApprovalMessage() && $oPayment->fcBoniCheckNeeded()) {
+                    $sApprovalLongdesc = '<br><table><tr><td><input type="hidden" name="fcpo_bonicheckapproved['.$oPayment->getId().']" value="false"><input type="checkbox" name="fcpo_bonicheckapproved['.$oPayment->getId().']" value="true" style="margin-bottom:0px;margin-right:10px;"></td><td>'.$this->fcGetApprovalText().'</td></tr></table>';
+                    $oPayment->oxpayments__oxlongdesc->value .= $sApprovalLongdesc;
+                }
+            }
+        }
+    }
+
+    /**
+     * Get current version number as 4 digit integer e.g. Oxid 4.5.9 is 4590
+     * 
+     * @return integer
+     */
+    protected function _fcGetCurrentVersion() {
+        $sVersion = oxConfig::getInstance()->getActiveShop()->oxshops__oxversion->value;
+        $iVersion = (int)str_replace('.', '', $sVersion);
+        while ($iVersion < 1000) {
+            $iVersion = $iVersion*10;
+        }
+        return $iVersion;
+    }
+    
+    /**
+     * Extends oxid standard method _setDeprecatedValues
+     * Extends it with the approval checkbox in the longdesc property
+     * 
+     * Calculate payment cost for each payment. Sould be removed later
+     *
+     * @param array    &$aPaymentList payments array
+     * @param oxBasket $oBasket       basket object
+     *
+     * @return null
+     */
+    protected function _setDeprecatedValues( & $aPaymentList, $oBasket = null ) {
+        parent::_setDeprecatedValues($aPaymentList, $oBasket);
+        if($this->_fcGetCurrentVersion() <= 4700) {
+            if ( is_array($aPaymentList) ) {
+                $oLang = oxLang::getInstance();
+                foreach ( $aPaymentList as $oPayment ) {
+                    if($oPayment->fcIsPayOnePaymentType() && $this->fcShowApprovalMessage() && $oPayment->fcBoniCheckNeeded()) {
+                        $sApprovalLongdesc = '<br><table><tr><td><input type="hidden" name="fcpo_bonicheckapproved['.$oPayment->getId().']" value="false"><input type="checkbox" name="fcpo_bonicheckapproved['.$oPayment->getId().']" value="true" style="margin-bottom:0px;margin-right:10px;"></td><td>'.$this->fcGetApprovalText().'</td></tr></table>';
+                        $oPayment->oxpayments__oxlongdesc->value .= $sApprovalLongdesc;
+                    }
+                }
+            }
+        }
     }
 
 }

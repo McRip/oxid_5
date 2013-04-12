@@ -237,9 +237,7 @@ if($myConfig->isUtf()) {
     $sQueryAlterOxorderAuthMode = "ALTER TABLE oxorder ADD COLUMN FCPOAUTHMODE VARCHAR(32) CHARSET utf8 COLLATE utf8_general_ci DEFAULT '' NOT NULL;";
     $sQueryAlterOxorderMode     = "ALTER TABLE oxorder ADD COLUMN FCPOMODE VARCHAR(8) CHARSET utf8 COLLATE utf8_general_ci DEFAULT '' NOT NULL;";
 
-    $sQueryAlterOxpaymentsIsPayone = "ALTER TABLE oxpayments ADD COLUMN FCPOISPAYONE TINYINT(1) DEFAULT '0' NOT NULL;";
     $sQueryAlterOxpaymentsAuthMode = "ALTER TABLE oxpayments ADD COLUMN FCPOAUTHMODE VARCHAR(32) CHARSET utf8 COLLATE utf8_general_ci DEFAULT '' NOT NULL;";
-    $sQueryAlterOxpaymentsLiveMode = "ALTER TABLE oxpayments ADD COLUMN FCPOLIVEMODE TINYINT(1) DEFAULT '0' NOT NULL;";
     
     $sQueryAlterTxStatusClearing1  = "ALTER TABLE fcpotransactionstatus ADD COLUMN FCPO_CLEARING_BANKACCOUNTHOLDER VARCHAR(64) CHARSET utf8 COLLATE utf8_general_ci DEFAULT '' NOT NULL;";
     $sQueryAlterTxStatusClearing2  = "ALTER TABLE fcpotransactionstatus ADD COLUMN FCPO_CLEARING_BANKACCOUNT VARCHAR(32) CHARSET utf8 COLLATE utf8_general_ci DEFAULT '' NOT NULL;";
@@ -338,10 +336,8 @@ if($myConfig->isUtf()) {
     $sQueryAlterOxorderRefNr    = "ALTER TABLE oxorder ADD COLUMN FCPOREFNR INT(11) DEFAULT '0' NOT NULL";
     $sQueryAlterOxorderAuthMode = "ALTER TABLE oxorder ADD COLUMN FCPOAUTHMODE VARCHAR(32) CHARSET latin1 COLLATE latin1_general_ci DEFAULT '' NOT NULL";
     $sQueryAlterOxorderMode     = "ALTER TABLE oxorder ADD COLUMN FCPOMODE VARCHAR(8) CHARSET latin1 COLLATE latin1_general_ci DEFAULT '' NOT NULL;";
-    
-    $sQueryAlterOxpaymentsIsPayone = "ALTER TABLE oxpayments ADD COLUMN FCPOISPAYONE TINYINT(1) DEFAULT '0' NOT NULL;";
+
     $sQueryAlterOxpaymentsAuthMode = "ALTER TABLE oxpayments ADD COLUMN FCPOAUTHMODE VARCHAR(32) CHARSET latin1 COLLATE latin1_general_ci DEFAULT '' NOT NULL;";
-    $sQueryAlterOxpaymentsLiveMode = "ALTER TABLE oxpayments ADD COLUMN FCPOLIVEMODE TINYINT(1) DEFAULT '0' NOT NULL;";
     
     $sQueryAlterTxStatusClearing1  = "ALTER TABLE fcpotransactionstatus ADD COLUMN FCPO_CLEARING_BANKACCOUNTHOLDER VARCHAR(64) CHARSET latin1 COLLATE latin1_general_ci DEFAULT '' NOT NULL;";
     $sQueryAlterTxStatusClearing2  = "ALTER TABLE fcpotransactionstatus ADD COLUMN FCPO_CLEARING_BANKACCOUNT VARCHAR(32) CHARSET latin1 COLLATE latin1_general_ci DEFAULT '' NOT NULL;";
@@ -355,6 +351,9 @@ if($myConfig->isUtf()) {
     $sQueryAlterTxStatusClearing10 = "ALTER TABLE fcpotransactionstatus ADD COLUMN FCPO_CLEARING_INSTRUCTIONNOTE VARCHAR(255) CHARSET latin1 COLLATE latin1_general_ci DEFAULT '' NOT NULL;";
 }
 $sQueryAlterOxuser = "ALTER TABLE oxuser ADD COLUMN FCPOBONICHECKDATE DATETIME DEFAULT '0000-00-00 00:00:00' NOT NULL;";
+
+$sQueryAlterOxpaymentsLiveMode = "ALTER TABLE oxpayments ADD COLUMN FCPOLIVEMODE TINYINT(1) DEFAULT '0' NOT NULL;";
+$sQueryAlterOxpaymentsIsPayone = "ALTER TABLE oxpayments ADD COLUMN FCPOISPAYONE TINYINT(1) DEFAULT '0' NOT NULL;";
 
 $sQueryAlterOxorderarticlesCapturedAmount = "ALTER TABLE oxorderarticles ADD COLUMN FCPOCAPTUREDAMOUNT INT(11) DEFAULT '0' NOT NULL;";
 $sQueryAlterOxorderarticlesDebitedAmount = "ALTER TABLE oxorderarticles ADD COLUMN FCPODEBITEDAMOUNT INT(11) DEFAULT '0' NOT NULL;";
@@ -453,6 +452,7 @@ foreach ($aPaymentMethods as $sPaymentOxid => $sPaymentName) {
 
 if(isBetweenVersions('4.5.0', '4.5.99')) {
     insertRowIfNotExists('oxtplblocks', array('OXID' => 'fcpo_payment_override'), "INSERT INTO oxtplblocks(OXID,OXACTIVE,OXSHOPID,OXTEMPLATE,OXBLOCKNAME,OXPOS,OXFILE,OXMODULE) VALUES ('fcpo_payment_override', '1', '{$sShopId}', 'page/checkout/payment.tpl', 'change_payment', '0', 'fcpo_payment_override', 'fcPayOne');");
+	insertRowIfNotExists('oxtplblocks', array('OXID' => 'fcpo_payment_select_override'), "INSERT INTO oxtplblocks(OXID,OXACTIVE,OXSHOPID,OXTEMPLATE,OXBLOCKNAME,OXPOS,OXFILE,OXMODULE) VALUES ('fcpo_payment_select_override', '1', '{$sShopId}', 'page/checkout/payment.tpl', 'select_payment', '200', 'fcpo_payment_select_override', 'fcPayOne');");
 }
 
 $sPathOut = getShopBasePath().'out/';
