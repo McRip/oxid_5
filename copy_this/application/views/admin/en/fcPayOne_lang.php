@@ -193,7 +193,9 @@ $aLang = array(
 'FCPO_CONSUMERSCORE_MOMENT'                 => "Moment of consumerscore",
 'FCPO_CONSUMERSCORE_BEFORE'                 => "Before paymenttype selection",
 'FCPO_CONSUMERSCORE_AFTER'                  => "After paymenttype selection",
-'FCPO_HELP_CONSUMERSCORE_MOMENT'            => "Help consumerscore",
+'FCPO_HELP_CONSUMERSCORE_MOMENT'            => "You can define the moment of the consumerscore check here. The comsumerscore is only executed when the configured credit rating from the payment method is greater 0.<br><br>Options:<br><br><ul><li>Before payment method selection<br>The consumerscore is checked, when the needed adress- and nameinformation is available. This happens before the payment method selection. The consumerscore happens in the background, not visible to the customer.<br><br></li><li>After payment method selection<br>When choosing this option, a checkbox will be displayed on the payment-site for the customer to select if he agrees with a consumerscore being done.</li></ul>",
+'sFCPOApprovalText_default'                 => "I agree that a credit check is being done.",
+'sFCPODenialText_default'                   => "Unfortunately, due to the credit check, we can't offer you the selected payment method. Please choose another payment method.",
 'FCPO_APPROVALTEXT'                         => "Infotext consumerscore approval",
 'FCPO_DENIALTEXT'                           => "Infotext denial message",
 );

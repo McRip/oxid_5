@@ -556,7 +556,7 @@ class fcPayOnePaymentView extends fcPayOnePaymentView_parent {
             if($oUser && oxConfig::getInstance()->getConfigParam('sFCPOBonicheckMoment') != 'after') {
                 $blContinue = $oUser->checkAddressAndScore();
             } else {
-                $blContinue = true;
+                $blContinue = $oUser->checkAddressAndScore(true, false);
             }
             if($blContinue === true) {
                 return parent::getPaymentList();

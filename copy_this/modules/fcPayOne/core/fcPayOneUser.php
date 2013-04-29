@@ -90,11 +90,11 @@ class fcPayOneUser extends fcPayOneUser_parent {
      *
      * @return bool
      */
-    public function checkAddressAndScore($blCheckAddress = true) {
+    public function checkAddressAndScore($blCheckAddress = true, $blCheckBoni = true) {
         $oConfig = $this->getConfig();
         $aResponse = array();
         $blCheckedBoni = false;
-        if($oConfig->getConfigParam('sFCPOBonicheck') != '-1') {
+        if($blCheckBoni === true && $oConfig->getConfigParam('sFCPOBonicheck') != '-1') {
             //Consumerscore
             if($this->isBonicheckNeeded()) {
                 $oPORequest = oxNew('fcporequest');
@@ -111,13 +111,18 @@ class fcPayOneUser extends fcPayOneUser_parent {
                 $oPORequest = oxNew('fcporequest');
                 $aResponse = $oPORequest->sendRequestAddresscheck($this);
             }
-            $blIsValidAddress = $this->fcpoIsValidAddress($aResponse, $oConfig->getConfigParam('blFCPOCorrectAddress'));
+            if($aResponse === true) {
+                $blIsValidAddress = true;
+            } else {
+                $blIsValidAddress = $this->fcpoIsValidAddress($aResponse, $oConfig->getConfigParam('blFCPOCorrectAddress'));
+            }
             if($blIsValidAddress && $oConfig->getConfigParam('blFCPOCheckDelAddress') === true) {
                 //Check Lieferadresse
                 $oPORequest = oxNew('fcporequest');
                 $aResponse = $oPORequest->sendRequestAddresscheck($this, true);
-                if($aResponse === false) {
-                    //No deliveryaddress given
+                if($aResponse === false || $aResponse === true) {
+                    // false = No deliveryaddress given
+                    // true = Address-check has been skipped because the address has been checked before
                     return true;
                 }
                 $blIsValidAddress = $this->fcpoIsValidAddress($aResponse, false);

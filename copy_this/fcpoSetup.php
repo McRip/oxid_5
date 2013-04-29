@@ -368,11 +368,19 @@ $sQueryAlterOxorderDiscountDebited = "ALTER TABLE oxorder ADD COLUMN FCPODISCOUN
 $sQueryChangeToVarchar1 = "ALTER TABLE fcpotransactionstatus CHANGE FCPO_USERID FCPO_USERID VARCHAR(32) DEFAULT '0' NOT NULL;";
 $sQueryChangeToVarchar2 = "ALTER TABLE fcpotransactionstatus CHANGE FCPO_TXID FCPO_TXID VARCHAR(32) DEFAULT '0' NOT NULL;";
 
+$sQueryTableFcpocheckedaddresses = "
+    CREATE TABLE fcpocheckedaddresses (
+      fcpo_address_hash CHAR(32) COLLATE latin1_general_ci NOT NULL DEFAULT '',
+      fcpo_checkdate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (fcpo_address_hash)
+    ) ENGINE=INNODB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;";
+
 //CREATE NEW TABLES
 addTableIfNotExists('fcporefnr', $sQueryTableFcporefnr);
 addTableIfNotExists('fcporequestlog', $sQueryTableFcporequestlog);
 addTableIfNotExists('fcpotransactionstatus', $sQueryTableFcpotransactionstatus);
 addTableIfNotExists('fcpopayment2country', $sQueryTableFcpopayment2country);
+addTableIfNotExists('fcpocheckedaddresses', $sQueryTableFcpocheckedaddresses);
 
 //ALTER EXISTING TABLES
 addColumnIfNotExists('oxorder', 'FCPOTXID', $sQueryAlterOxorderTxid);

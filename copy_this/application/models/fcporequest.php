@@ -13,7 +13,7 @@ class fcpoRequest extends oxSuperCfg {
      * @return string
      */
     public static function getVersion() {
-        return '1.3.1b4';
+        return '1.3.2';
     }
 
     /**
@@ -710,6 +710,9 @@ class fcpoRequest extends oxSuperCfg {
 
     /**
      * Send request to PAYONE Server-API with request-type "addresscheck"
+     * Returns array of the response if the address was checked
+     * OR
+     * Return true if address-check was skipped because the address has been checked before
      *
      * @param object $oUser user object
      * @param bool $blCheckDeliveryAddress check delivery address? Default is false
@@ -747,8 +750,81 @@ class fcpoRequest extends oxSuperCfg {
             }
 
             $this->addParameter('language', oxLang::getInstance()->getLanguageAbbr());
-            return $this->send();
+            
+            if($this->_wasAddressCheckedBefore() === false) {
+                $aResponse = $this->send();
+
+                if($aResponse['status'] == 'VALID') {
+                    $this->_saveCheckedAddress($aResponse);
+                }
+                
+                return $aResponse;
+            }
+            return true;
         }
+    }
+    
+    /**
+     * Create a unique hash of the valid address
+     * 
+     * @param array $aResponse response from the address-check request
+     * @return string
+     */
+    protected function _getAddressHash($aResponse = false) {
+        $sHash = false;
+        
+        $aAddressParameters = array(
+            'firstname',
+            'lastname',
+            'company',
+            'street',
+            'streetname',
+            'streetnumber',
+            'zip',
+            'city',
+            'country',
+            'state',
+        );
+        
+        $sAddress = '';
+        foreach ($aAddressParameters as $sParamKey) {
+            $sParamValue = $this->getParameter($sParamKey);
+            if($sParamValue) {
+                if($aResponse !== false && array_key_exists($sParamKey, $aResponse) !== false && $aResponse[$sParamKey] != $sParamValue) {
+                    //take the corrected value from the address-check
+                    $sParamValue = $aResponse[$sParamKey];
+                }
+                $sAddress .= $sParamValue;
+            }
+        }
+        $sHash = md5($sAddress);
+        return $sHash;
+    }
+    
+    /**
+     * Check and return if this exact address has been checked before
+     * 
+     * @return bool 
+     */
+    protected function _wasAddressCheckedBefore() {
+        $sCheckHash = $this->_getAddressHash();
+        $sQuery = "SELECT fcpo_checkdate FROM fcpocheckedaddresses WHERE fcpo_address_hash = '{$sCheckHash}'";
+        $sDate = oxDb::getDb()->GetOne($sQuery);
+        if($sDate != false) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Save the hash of a concatenated string with all address information to the DB table fcpocheckedaddresses
+     * 
+     * @param array $aResponse response from the address-check request
+     */
+    protected function _saveCheckedAddress($aResponse) {
+        $sCheckHash = $this->_getAddressHash($aResponse);
+        $sQuery = "INSERT INTO fcpocheckedaddresses ( fcpo_address_hash ) VALUES ( '{$sCheckHash}' )";
+        oxDb::getDb()->Execute($sQuery);
     }
 
     /** Send request to PAYONE Server-API with request-type "consumerscore"

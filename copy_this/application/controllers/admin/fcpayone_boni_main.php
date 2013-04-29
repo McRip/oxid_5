@@ -68,6 +68,17 @@ class fcpayone_boni_main extends oxAdminDetails {
                 $oResult->moveNext();
             }
         }
+        
+        foreach ($this->_aMultiLangFields as $sMultiLangVar) {
+            if(array_key_exists($sMultiLangVar, $aConfStrs) === false || empty($aConfStrs[$sMultiLangVar])) {
+                $sLangKey = $sMultiLangVar.'_default';
+                $sValue = oxLang::getInstance()->translateString($sLangKey, $iLang, true);
+                if($sValue == $sLangKey) {
+                    $sValue = '';
+                }
+                $aConfStrs[$sMultiLangVar] = $sValue;
+            }
+        }
 
         $this->_aViewData["confbools"] = $aConfBools;
         $this->_aViewData["confstrs"] = $aConfStrs;

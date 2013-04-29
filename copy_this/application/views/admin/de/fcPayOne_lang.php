@@ -196,7 +196,9 @@ $aLang = array(
 'FCPO_CONSUMERSCORE_MOMENT'                 => "Moment der Bonitätsprüfung",
 'FCPO_CONSUMERSCORE_BEFORE'                 => "Vor Zahlartauswahl",
 'FCPO_CONSUMERSCORE_AFTER'                  => "Nach Zahlartauswahl",
-'FCPO_HELP_CONSUMERSCORE_MOMENT'            => "Hilfe Bonitätsprüfung",
+'FCPO_HELP_CONSUMERSCORE_MOMENT'            => "Hier können Sie definieren wann der Kunde geprüft werden soll. Die Bonitätsprüfung wird nur durchgeführt wenn der Bonitätsindex der Zahlart einen Wert größer 0 entspricht.<br><br>Optionen:<br><br><ul><li>Vor Zahlartauswahl<br>Die Bonität des Kunden wird geprüft, wenn die notwendigen Adress und Namesinformationen vorliegen. Dies geschieht vor der Auswahl der Zahlart. Diese Prüfung findet nicht sichtbar für den Kunden im Hintergrund statt.<br><br></li><li>Nach Zahlartauswahl<br>Bei Auswahl dieser Option erscheint ein Auswahlfeld in dem Sie auswählen können für welche Zahlarten eine anschließende Bonitätsprüfung stattfinden soll.</li></ul>",
+'sFCPOApprovalText_default'                 => "Hiermit erkläre ich mich einverstanden, dass eine Bonitätsprüfung durchgeführt wird.",
+'sFCPODenialText_default'                   => "Die Bonitätsprüfung hat ergeben, dass wir Ihnen die gewählte Zahlart leider nicht anbieten können. Bitte wählen Sie eine andere Zahlart",
 'FCPO_APPROVALTEXT'                         => "Hinweistext Zustimmung Bonit&auml;tspr&uuml;fung",
 'FCPO_DENIALTEXT'                           => "Hinweistext Zahlart abgelehnt",
 );
