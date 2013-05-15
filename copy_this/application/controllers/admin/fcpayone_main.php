@@ -58,17 +58,26 @@ class fcpayone_main extends oxAdminDetails {
 
         $this->_aViewData['sHelpURL'] = 'http://www.payone.de';
 
-        if ( oxConfig::getParameter("aoc") ) {
-            $sOxid = oxConfig::getParameter( "oxid");
-            $this->_aViewData["oxid"] =  $sOxid;
-            $sType = oxConfig::getParameter( "type");
-            $this->_aViewData["type"] =  $sType;
+        if ( $this->getConfig()->getVersion() >= 4.6 ) {
+            if ( oxConfig::getParameter("aoc") ) {
+                $oPayOneAjax = oxNew( 'fcpayone_main_ajax' );
+                $this->_aViewData['oxajax'] = $oPayOneAjax->getColumns();
 
-            $aColumns = array();
-            include_once 'inc/'.strtolower(__CLASS__).'.inc.php';
-            $this->_aViewData['oxajax'] = $aColumns;
+                return "popups/fcpayone_main.tpl";
+            }
+        } else {
+            if ( oxConfig::getParameter("aoc") ) {
+                $sOxid = oxConfig::getParameter( "oxid");
+                $this->_aViewData["oxid"] =  $sOxid;
+                $sType = oxConfig::getParameter( "type");
+                $this->_aViewData["type"] =  $sType;
 
-            return "popups/fcpayone_main.tpl";
+                $aColumns = array();
+                include_once 'inc/'.strtolower(__CLASS__).'.inc.php';
+                $this->_aViewData['oxajax'] = $aColumns;
+
+                return "popups/fcpayone_main.tpl";
+            }
         }
         return $sReturn;
     }

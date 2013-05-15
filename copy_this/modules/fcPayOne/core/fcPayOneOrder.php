@@ -230,6 +230,11 @@ class fcPayOneOrder extends fcPayOneOrder_parent {
         oxSession::deleteVar( 'ordrem' );
         oxSession::deleteVar( 'stsprotection' );
 
+        //#4005: Order creation time is not updated when order processing is complete
+        if ( method_exists($this, '_updateOrderDate') && !$blRecalculatingOrder ) {
+           $this->_updateOrderDate();
+        }
+        
         // updating order trans status (success status)
         $this->_setOrderStatus( 'OK' );
 

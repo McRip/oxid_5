@@ -1,3 +1,10 @@
+==1.3.4==
+  * Fixed a bug with the capture request for BillSAFE orders
+  * Added an oxid bugfix to the module
+
+==1.3.3==
+  * fixed oxid 4.7/5.0 compatibility admin country popup bug
+
 ==1.3.2==
   * Fixed a bug with the addresscheck when consumerscore was requested after payment-selection
   * Added an addresscheck caching, so that an address is only checked once

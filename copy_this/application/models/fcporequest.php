@@ -13,7 +13,7 @@ class fcpoRequest extends oxSuperCfg {
      * @return string
      */
     public static function getVersion() {
-        return '1.3.2';
+        return '1.3.4';
     }
 
     /**
@@ -392,7 +392,7 @@ class fcpoRequest extends oxSuperCfg {
             }
         }
         
-        $sQuery = "SELECT IF(SUM(fcpocapturedamount) = 0, 1, 0) AS b FROM oxorderarticles WHERE oxorderid = '1e4b996139e6d59e7410b9bbe6018f5d' GROUP BY oxorderid";
+        $sQuery = "SELECT IF(SUM(fcpocapturedamount) = 0, 1, 0) AS b FROM oxorderarticles WHERE oxorderid = '{$oOrder->getId()}' GROUP BY oxorderid";
         $blFirstCapture = (bool)oxDb::getDb()->GetOne($sQuery);
         
         if($aPositions === false || $blFirstCapture === true || $blDebit === true) {
@@ -458,7 +458,7 @@ class fcpoRequest extends oxSuperCfg {
                 $oLang = oxLang::getInstance();
                 $this->addParameter('id['.$i.']', 'discount');
                 $this->addParameter('pr['.$i.']', round($oOrder->oxorder__oxdiscount->value, 2)*-100);
-                $dAmount += ($oOrder->oxorder__oxdiscount->value*-1);
+                $dAmount += (round($oOrder->oxorder__oxdiscount->value, 2)*-1);
                 $this->addParameter('it['.$i.']', 'voucher');
                 $this->addParameter('no['.$i.']', 1);
                 $this->addParameter('de['.$i.']', $oLang->translateString('FCPO_DISCOUNT', null, false));
