@@ -363,6 +363,7 @@ $sQueryAlterOxorderPaycostDebited = "ALTER TABLE oxorder ADD COLUMN FCPOPAYCOSTD
 $sQueryAlterOxorderWrapcostDebited = "ALTER TABLE oxorder ADD COLUMN FCPOWRAPCOSTDEBITED TINYINT(1) DEFAULT '0' NOT NULL;";
 $sQueryAlterOxorderVoucherdiscountDebited = "ALTER TABLE oxorder ADD COLUMN FCPOVOUCHERDISCOUNTDEBITED TINYINT(1) DEFAULT '0' NOT NULL;";
 $sQueryAlterOxorderDiscountDebited = "ALTER TABLE oxorder ADD COLUMN FCPODISCOUNTDEBITED TINYINT(1) DEFAULT '0' NOT NULL;";
+$sQueryAlterOxorderNotChecked = "ALTER TABLE oxorder ADD COLUMN FCPOORDERNOTCHECKED TINYINT(1) DEFAULT '0' NOT NULL;";
 
 //Needed for 12 digit long ids
 $sQueryChangeToVarchar1 = "ALTER TABLE fcpotransactionstatus CHANGE FCPO_USERID FCPO_USERID VARCHAR(32) DEFAULT '0' NOT NULL;";
@@ -393,6 +394,7 @@ addColumnIfNotExists('oxorder', 'FCPOPAYCOSTDEBITED', $sQueryAlterOxorderPaycost
 addColumnIfNotExists('oxorder', 'FCPOWRAPCOSTDEBITED', $sQueryAlterOxorderWrapcostDebited);
 addColumnIfNotExists('oxorder', 'FCPOVOUCHERDISCOUNTDEBITED', $sQueryAlterOxorderVoucherdiscountDebited);
 addColumnIfNotExists('oxorder', 'FCPODISCOUNTDEBITED', $sQueryAlterOxorderDiscountDebited);
+addColumnIfNotExists('oxorder', 'FCPOORDERNOTCHECKED', $sQueryAlterOxorderNotChecked);
 
 addColumnIfNotExists('oxorderarticles', 'FCPOCAPTUREDAMOUNT', $sQueryAlterOxorderarticlesCapturedAmount);
 addColumnIfNotExists('oxorderarticles', 'FCPODEBITEDAMOUNT', $sQueryAlterOxorderarticlesDebitedAmount);

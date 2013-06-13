@@ -201,6 +201,7 @@ $aLang = array(
 'sFCPODenialText_default'                   => "Die Bonitätsprüfung hat ergeben, dass wir Ihnen die gewählte Zahlart leider nicht anbieten können. Bitte wählen Sie eine andere Zahlart",
 'FCPO_APPROVALTEXT'                         => "Hinweistext Zustimmung Bonit&auml;tspr&uuml;fung",
 'FCPO_DENIALTEXT'                           => "Hinweistext Zahlart abgelehnt",
+'FCPO_ORDERNOTCHECKED'                      => "Der Kunde hat der Bonitäts-Prüfung nicht zugestimmt!",
 );
 
 /*

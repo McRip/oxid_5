@@ -32,15 +32,14 @@ class fcPayOneOrderarticle extends fcPayOneOrderarticle_parent {
      *
      * @return bool
      */
-    public function save($oOrder = false) {
-        
+    public function save($oOrder = false, $blFinishingSave = true) {
         $blPresaveOrder = (bool)$this->getConfig()->getConfigParam('blFCPOPresaveOrder');
         if($oOrder === false || $blPresaveOrder === false || $oOrder->isPayOnePaymentType() === false) {
             return parent::save();
         }
         
-        $blReduceStockBefore = !(bool)$this->getConfig()->getConfigParam('blFCPOReduceStock');       
-        if(oxConfig::getParameter('fcposuccess') && oxConfig::getParameter('refnr')) {
+        $blReduceStockBefore = !(bool)$this->getConfig()->getConfigParam('blFCPOReduceStock');
+        if(oxConfig::getParameter('fcposuccess') && oxConfig::getParameter('refnr') || ($blFinishingSave === true && $blPresaveOrder === true && $blReduceStockBefore === false)) {
             $blBefore = false;
         } else {
             $blBefore = true;
@@ -74,6 +73,33 @@ class fcPayOneOrderarticle extends fcPayOneOrderarticle_parent {
         }
 
         return $blSave;
+    }
+    
+    /**
+     * Deletes order article object. If deletion succeded - updates
+     * article stock information. Returns deletion status
+     *
+     * @param string $sOXID Article id
+     *
+     * @return bool
+     */
+    public function delete( $sOXID = null) {
+        $sPaymentId = oxSession::getInstance()->getBasket()->getPaymentId();
+        if($sPaymentId) {
+            $oPayment = oxNew('oxpayment');
+            $oPayment->load($sPaymentId);
+            if($oPayment->fcIsPayOnePaymentType() === false) {
+                return parent::delete($sOXID);
+            }
+        }
+        if ( $blDelete = oxBase::delete( $sOXID ) ) {
+            $myConfig = $this->getConfig();
+            $blReduceStockBefore = !(bool)$this->getConfig()->getConfigParam('blFCPOReduceStock');
+            if ( $this->oxorderarticles__oxstorno->value != 1 && $blReduceStockBefore !== false ) {
+                $this->updateArticleStock( $this->oxorderarticles__oxamount->value, $myConfig->getConfigParam('blAllowNegativeStock') );
+            }
+        }
+        return $blDelete;
     }
 
 }

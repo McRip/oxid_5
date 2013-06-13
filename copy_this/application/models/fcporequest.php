@@ -13,7 +13,7 @@ class fcpoRequest extends oxSuperCfg {
      * @return string
      */
     public static function getVersion() {
-        return '1.3.4';
+        return '1.3.5';
     }
 
     /**

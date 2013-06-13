@@ -1,3 +1,7 @@
+==1.3.5==
+  * Show a message in the PAYONE tab of an order if the customer did not accept with a consumerscore being done
+  * Fixed a bug where the stock was changed even though an error occured
+
 ==1.3.4==
   * Fixed a bug with the capture request for BillSAFE orders
   * Added an oxid bugfix to the module

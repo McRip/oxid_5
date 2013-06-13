@@ -72,6 +72,13 @@
         <tr>
             <td width="45%" valign="top">
                 <table>
+                    [{if $edit->oxorder__fcpoordernotchecked->value == 1}]
+                        <tr>
+                            <td class="edittext" colspan="2">
+                                <strong style="color:red;">[{ oxmultilang ident="FCPO_ORDERNOTCHECKED" }]</strong>
+                            </td>
+                        </tr>
+                    [{/if}]
                     [{if $requestMessage}]
                         <tr>
                             <td class="edittext" colspan="2">

@@ -550,6 +550,7 @@ class fcPayOnePaymentView extends fcPayOnePaymentView_parent {
 	 * @extend  getPaymentList
      */
     public function getPaymentList() {
+        oxSession::deleteVar('fcpoordernotchecked');
         if ( $this->_oPaymentList === null ) {
             $oUser = $this->getUser();
             $blContinue = false;
@@ -601,12 +602,17 @@ class fcPayOnePaymentView extends fcPayOnePaymentView_parent {
                     $blApproval = false;
                 }
                 
-                if($oPayment->fcBoniCheckNeeded() && $blApproval === true) {
+                $blBoniCheckNeeded = $oPayment->fcBoniCheckNeeded();
+                
+                if($blBoniCheckNeeded === true && $blApproval === true) {
                     $blContinue = $oUser->checkAddressAndScore(false);
                     if($oUser->oxuser__oxboni->value < $oPayment->oxpayments__oxfromboni->value) {
                         $blContinue = false;
                     }
                 } else {
+                    if($blBoniCheckNeeded === true && $blApproval === false) {
+                        oxSession::setVar( 'fcpoordernotchecked', 1 );
+                    }
                     $blContinue = true;
                 }
             }

@@ -74,7 +74,7 @@ class fcPayOnePaymentgateway extends fcPayOnePaymentgateway_parent {
         
         $blPresaveOrder = (bool)$this->getConfig()->getConfigParam('blFCPOPresaveOrder');
         if($blPresaveOrder === true) {
-            $oOrder->save();
+            $oOrder->save(false);
         }
 
         if(!empty($oOrder->oxorder__oxordernr->value)) {
@@ -93,7 +93,12 @@ class fcPayOnePaymentgateway extends fcPayOnePaymentgateway_parent {
             $response = $oPORequest->sendRequestPreauthorization($oOrder, $oOrder->getOrderUser(), $aDynvalue, $iRefNr);
             $sAuthorizationType = 'preauthorization';
         }
-
+        
+        $iOrderNotChecked = oxSession::getVar('fcpoordernotchecked');
+        if(!$iOrderNotChecked || $iOrderNotChecked != 1) {
+            $iOrderNotChecked = 0;
+        }
+        
         $sMode = $this->fcpoGetMode($oPayment, $aDynvalue);
         if($response['status'] == 'ERROR') {
             $this->_iLastErrorNo = $response['errorcode'];
@@ -104,6 +109,7 @@ class fcPayOnePaymentgateway extends fcPayOnePaymentgateway_parent {
             $oOrder->oxorder__fcporefnr = new oxField($iRefNr, oxField::T_RAW);
             $oOrder->oxorder__fcpoauthmode = new oxField($sAuthorizationType, oxField::T_RAW);
             $oOrder->oxorder__fcpomode = new oxField($sMode, oxField::T_RAW);
+            $oOrder->oxorder__fcpoordernotchecked->value = new oxField($iOrderNotChecked, oxField::T_RAW);
             oxDb::getDb()->Execute("UPDATE fcporefnr SET fcpo_txid = '{$response['txid']}' WHERE fcpo_refnr = '".$iRefNr."'");
             return true;
         } elseif($response['status'] == 'REDIRECT') {
@@ -114,10 +120,11 @@ class fcPayOnePaymentgateway extends fcPayOnePaymentgateway_parent {
             $oOrder->oxorder__fcporefnr = new oxField($iRefNr, oxField::T_RAW);
             $oOrder->oxorder__fcpoauthmode = new oxField($sAuthorizationType, oxField::T_RAW);
             $oOrder->oxorder__fcpomode = new oxField($sMode, oxField::T_RAW);
+            $oOrder->oxorder__fcpoordernotchecked->value = new oxField($iOrderNotChecked, oxField::T_RAW);
             if($blPresaveOrder === true) {
                 $oOrder->oxorder__oxtransstatus = new oxField('INCOMPLETE');
                 $oOrder->oxorder__oxfolder = new oxField('ORDERFOLDER_PROBLEMS');
-                $oOrder->save();
+                $oOrder->save(false);
                 oxSession::setVar('fcpoOrderNr', $oOrder->oxorder__oxordernr->value);
             }
             oxUtils::getInstance()->redirect( $response['redirecturl'] );

@@ -184,6 +184,11 @@ class fcPayOneOrder extends fcPayOneOrder_parent {
                 return $oLang->translateString('FCPO_MANIPULATION');
             }
             
+            $iOrderNotChecked = oxSession::getVar('fcpoordernotchecked');
+            if(!$iOrderNotChecked || $iOrderNotChecked != 1) {
+                $iOrderNotChecked = 0;
+            }
+            
             $blPresaveOrder = (bool)$this->getConfig()->getConfigParam('blFCPOPresaveOrder');
             if($blPresaveOrder === true) {
                 $this->oxorder__oxordernr = new oxField(oxSession::getVar('fcpoOrderNr'), oxField::T_RAW);
@@ -192,6 +197,7 @@ class fcPayOneOrder extends fcPayOneOrder_parent {
             $this->oxorder__fcporefnr = new oxField(oxConfig::getParameter('refnr'), oxField::T_RAW);
             $this->oxorder__fcpoauthmode = new oxField(oxSession::getVar('fcpoAuthMode'), oxField::T_RAW);
             $this->oxorder__fcpomode = new oxField(oxSession::getVar('fcpoMode'), oxField::T_RAW);
+            $this->oxorder__fcpoordernotchecked->value = new oxField($iOrderNotChecked, oxField::T_RAW);
             oxDb::getDb()->Execute("UPDATE fcporefnr SET fcpo_txid = '".oxSession::getVar('fcpoTxid')."' WHERE fcpo_refnr = '".oxConfig::getParameter('refnr')."'");
             oxSession::deleteVar('fcpoOrderNr');
             oxSession::deleteVar('fcpoTxid');
@@ -253,6 +259,8 @@ class fcPayOneOrder extends fcPayOneOrder_parent {
             $this->_markVouchers( $oBasket, $oUser );
         }
 
+        oxSession::deleteVar('fcpoordernotchecked');
+        
         // send order by email to shop owner and current user
         // skipping this action in case of order recalculation
         if ( !$blRecalculatingOrder ) {
@@ -310,7 +318,7 @@ class fcPayOneOrder extends fcPayOneOrder_parent {
      *
      * @return null
      */
-    public function save() {
+    public function save($blFinishingSave = true) {
         $blPresaveOrder = (bool)$this->getConfig()->getConfigParam('blFCPOPresaveOrder');
         if($blPresaveOrder === false || $this->isPayOnePaymentType() === false) {
             return parent::save();
@@ -327,7 +335,7 @@ class fcPayOneOrder extends fcPayOneOrder_parent {
             $oOrderArticles = $this->getOrderArticles();
             if ( $oOrderArticles && count( $oOrderArticles ) > 0 ) {
                 foreach ( $oOrderArticles as $oOrderArticle ) {
-                    $oOrderArticle->save($this);
+                    $oOrderArticle->save($this, $blFinishingSave);
                 }
             }
         }

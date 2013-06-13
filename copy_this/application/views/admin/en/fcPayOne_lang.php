@@ -198,6 +198,7 @@ $aLang = array(
 'sFCPODenialText_default'                   => "Unfortunately, due to the credit check, we can't offer you the selected payment method. Please choose another payment method.",
 'FCPO_APPROVALTEXT'                         => "Infotext consumerscore approval",
 'FCPO_DENIALTEXT'                           => "Infotext denial message",
+'FCPO_ORDERNOTCHECKED'                      => "The customer did not accept the<br>consumerscore check for this order!",
 );
 
 /*
