@@ -13,7 +13,7 @@ class fcpoRequest extends oxSuperCfg {
      * @return string
      */
     public static function getVersion() {
-        return '1.3.5';
+        return '1.3.6';
     }
 
     /**
@@ -893,13 +893,24 @@ class fcpoRequest extends oxSuperCfg {
             $oCurl = curl_init($aUrlArray['scheme']."://".$aUrlArray['host'].$aUrlArray['path']);
             curl_setopt($oCurl, CURLOPT_POST, 1);
             curl_setopt($oCurl, CURLOPT_POSTFIELDS, $aUrlArray['query']);
-            curl_setopt($oCurl, CURLOPT_SSL_VERIFYPEER, FALSE);
-            curl_setopt($oCurl, CURLOPT_SSL_VERIFYHOST, 2);
+            
+            $sCertificateFilePath = getShopBasePath() . 'modules/fcPayOne/cacert.pem';
+            if (file_exists($sCertificateFilePath) !== false) {
+                curl_setopt($oCurl, CURLOPT_CAINFO, $sCertificateFilePath);
+                curl_setopt($oCurl, CURLOPT_SSL_VERIFYPEER, true);  // force SSL certificate check
+                curl_setopt($oCurl, CURLOPT_SSL_VERIFYHOST, 2);  // check hostname in SSL certificate
+            } else {
+                curl_setopt($oCurl, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($oCurl, CURLOPT_SSL_VERIFYHOST, false);
+                curl_setopt($oCurl, CURLOPT_SSLVERSION, 3);
+            }
+
             curl_setopt($oCurl, CURLOPT_RETURNTRANSFER, TRUE);
             curl_setopt($oCurl, CURLOPT_TIMEOUT, 45);
+            
             $result = curl_exec($oCurl);
             if (curl_error($oCurl)) {
-                $aResponse[] = "errormessage=".curl_errno($oCurl).": ".curl_error($oCurl);
+                $aResponse[] = "connection-type: 1 - errormessage=".curl_errno($oCurl).": ".curl_error($oCurl);
             } else {
                 $aResponse = explode("\n",$result);
             }
@@ -922,7 +933,7 @@ class fcpoRequest extends oxSuperCfg {
                 $iSysOut = -1;
                 $sTemp = exec($sCommand,$aResponse,$iSysOut);
                 if($iSysOut != 0) {
-                    $aResponse[] = "errormessage=curl error(".$iSysOut.")";
+                    $aResponse[] = "connection-type: 2 - errormessage=curl error(".$iSysOut.")";
                 }
             }
         } else {
@@ -960,7 +971,7 @@ class fcpoRequest extends oxSuperCfg {
                     $aResponse[] = fgets($oFsockOpen, 1024);
                 }
                 if(count($aResponse) == 0) {
-                    $aResponse[] = $sResponseHeader;
+                    $aResponse[] = 'connection-type: 3 - '.$sResponseHeader;
                 }
             }
         }
