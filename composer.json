@@ -1,5 +1,5 @@
 {
-    "name": "mcrip/payone_oxid_5",
+    "name": "mcrip/fcPayOne",
     "type": "oxid-module",
     "description": "Payone Integration for OXID > 4.7/5.0",
     "require": {
