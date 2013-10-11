@@ -3,6 +3,6 @@
     "type": "oxid-module",
     "description": "Payone Integration for OXID > 4.7/5.0",
     "require": {
-        "composer/installers": "~1.0",
+        "composer/installers": "~1.0"
     }
 }
