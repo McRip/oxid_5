@@ -3,7 +3,8 @@
     <div class="status error">[{ $oView->getPaymentErrorText() }]</div>
 [{/if}]
 
-[{oxscript include="fcPayOne.js"}]
+[{oxscript include=$oViewConf->getModuleUrl('fcPayOne', 'out/src/js/fcPayOne.js')  priority=10 }]
+
 <script type="text/javascript" src="https://secure.pay1.de/client-api/js/ajax.js"></script>
 <style type="text/css">
     .fcpo_check_error, #fcpo_elv_error, #fcpo_cc_error, #fcpo_ou_error {
@@ -25,7 +26,7 @@ if (!((document.all && !document.querySelector) || (document.all && document.que
 }
 [{/capture}]
 [{oxscript add=$smarty.capture.oxValidate}]
-<form action="[{ $oViewConf->getSslSelfLink() }]" class="js-oxValidate payment" id="payment" name="order" method="post" onsubmit="return fcCheckPaymentSelection();">
+<form action="[{ $oViewConf->getSslSelfLink() }]" class="js-oxValidate payment" id="payment" name="order" method="post">
     <div>
         [{ $oViewConf->getHiddenSid() }]
         [{ $oViewConf->getNavFormParams() }]

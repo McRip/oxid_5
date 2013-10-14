@@ -35,7 +35,7 @@
 							<input type="hidden" name="fcpo_mode_[{$sPaymentID}]_M" value="[{$paymentmethod->fcpoGetOperationMode('M')}]">
 						[{/if}]
 						[{if $oView->getAmex() }]
-							<input type="hidden" name="fcpo_hashcc_A" value="[{$oView->getHashCC('A')}]">
+							<input type="hidden" nam    e="fcpo_hashcc_A" value="[{$oView->getHashCC('A')}]">
 							<input type="hidden" name="fcpo_mode_[{$sPaymentID}]_A" value="[{$paymentmethod->fcpoGetOperationMode('A')}]">
 						[{/if}]
 						[{if $oView->getDiners() }]

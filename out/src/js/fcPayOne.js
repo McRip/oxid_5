@@ -328,3 +328,10 @@ function processPayoneResponseCC(response) {
         }
     }
 }
+
+var payment = document.getElementById('payment');
+if (payment.addEventListener) {
+  payment.addEventListener('submit', fcCheckPaymentSelection, false);
+} else if (payment.attachEvent) {
+  payment.attachEvent('onsubmit', fcCheckPaymentSelection);
+}
