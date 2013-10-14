@@ -3,7 +3,7 @@
 /**
  * Handles configuration for PAYONE payment methods
  * 
- * @author FATCHIP GmbH | Robert Müller
+ * @author FATCHIP GmbH | Robert Mï¿½ller
  */
 class fcpayone_main extends oxAdminDetails {
 
@@ -58,20 +58,18 @@ class fcpayone_main extends oxAdminDetails {
 
         $this->_aViewData['sHelpURL'] = 'http://www.payone.de';
 
-        if ( $this->getConfig()->getVersion() >= 4.6 ) {
-            if ( oxConfig::getParameter("aoc") ) {
+        if ( oxRegistry::getConfig()->getRequestParameter("aoc") ) {
+            $sOxid = oxRegistry::getConfig()->getRequestParameter( "oxid");
+            $this->_aViewData["oxid"] =  $sOxid;
+            $sType = oxRegistry::getConfig()->getRequestParameter( "type");
+            $this->_aViewData["type"] =  $sType;
+
+            if ( $this->getConfig()->getVersion() >= 4.6 ) {
                 $oPayOneAjax = oxNew( 'fcpayone_main_ajax' );
                 $this->_aViewData['oxajax'] = $oPayOneAjax->getColumns();
 
                 return "popups/fcpayone_main.tpl";
-            }
-        } else {
-            if ( oxConfig::getParameter("aoc") ) {
-                $sOxid = oxConfig::getParameter( "oxid");
-                $this->_aViewData["oxid"] =  $sOxid;
-                $sType = oxConfig::getParameter( "type");
-                $this->_aViewData["type"] =  $sType;
-
+            } else {
                 $aColumns = array();
                 include_once 'inc/'.strtolower(__CLASS__).'.inc.php';
                 $this->_aViewData['oxajax'] = $aColumns;
@@ -79,6 +77,7 @@ class fcpayone_main extends oxAdminDetails {
                 return "popups/fcpayone_main.tpl";
             }
         }
+
         return $sReturn;
     }
 
